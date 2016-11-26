@@ -11,9 +11,9 @@ import com.google.vr.sdk.base.Viewport;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
-public class MainActivity extends GvrActivity implements GvrView.StereoRenderer{
+public class MainActivity extends GvrActivity implements GvrView.StereoRenderer {
 
-        @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
@@ -21,7 +21,7 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer{
 
     @Override
     public void onNewFrame(HeadTransform headTransform) {
-        
+
     }
 
     @Override
