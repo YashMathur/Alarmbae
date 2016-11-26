@@ -21,7 +21,7 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer{
 
     @Override
     public void onNewFrame(HeadTransform headTransform) {
-        
+
     }
 
     @Override
