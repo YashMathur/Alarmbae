@@ -685,11 +685,10 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer 
         if (requestCode == 1) {
             Log.d("in", "2");
             if(resultCode == Activity.RESULT_OK){
-                Log.d("in", "3");
-                String result=data.getExtras().getString("result");
+                String re=data.getExtras().getString("result");
+                Log.d("in", "3" + re);
 
-                Log.d("result", "res "+result);
-                if(result=="1"){
+                if(re.equals("1")){
                     Log.d("in", "4");
                     my_intent.putExtra("extra", "alarm off");
                     sendBroadcast(my_intent);
