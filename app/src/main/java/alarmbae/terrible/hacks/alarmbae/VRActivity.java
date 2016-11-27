@@ -3,18 +3,22 @@ package alarmbae.terrible.hacks.alarmbae;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
+import android.icu.util.Calendar;
 import android.opengl.GLES20;
-import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Vibrator;
-import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.vr.sdk.audio.GvrAudioEngine;
@@ -32,25 +36,13 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
-import static alarmbae.terrible.hacks.alarmbae.MemeFrame.squareCoords;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.icu.util.Calendar;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TimePicker;
-import android.widget.Toast;
+public class VRActivity extends GvrActivity implements GvrView.StereoRenderer{
 
-public class MainActivity extends GvrActivity implements GvrView.StereoRenderer {
 
     ImageButton startButton;
     AlarmManager alarm_manager;
@@ -127,12 +119,10 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer 
     private float[] tempPosition;
     private float[] headRotation;
 
-    Intent my_intent;
-
     private float objectDistance = MAX_MODEL_DISTANCE / 2.0f;
     private float floorDepth = 20f;
 
-    private Vibrator vibrator;
+    //private Vibrator vibrator;
 
     private GvrAudioEngine gvrAudioEngine;
     private volatile int sourceId = GvrAudioEngine.INVALID_ID;
@@ -140,11 +130,6 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer 
 
 
 
-    public void onStartCommand(Intent intent, int flags, int startId) {
-        boolean b = intent.getExtras().getBoolean("VR");
-        if(b)
-            startActivity(new Intent(this, VRActivity.class));
-    }
 
     /**
      * Converts a raw text file, saved as a resource, into an OpenGL ES shader.
@@ -182,8 +167,7 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        if(score==20)
-            initializeGvrView();
+        initializeGvrView();
 
         modelCube = new float[16];
         camera = new float[16];
@@ -196,87 +180,15 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer 
         modelPosition = new float[] {0.0f, 0.0f, -MAX_MODEL_DISTANCE / 2.0f};
         headRotation = new float[4];
         headView = new float[16];
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        //vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         // Initialize 3D audio engine.
         gvrAudioEngine = new GvrAudioEngine(this, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
 
-        timePicker = (TimePicker)findViewById(R.id.timePicker);
-        startButton = (ImageButton)findViewById(R.id.startButton);
-        alarm_manager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        cancelButton = (Button)findViewById(R.id.cancel);
-
-        final Calendar calendar = Calendar.getInstance();
-
-        my_intent = new Intent(this, AlarmReceiver.class);
-
-        //Functionality
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
-                calendar.set(Calendar.MINUTE, timePicker.getMinute());
-
-                int hour = timePicker.getHour();
-                int min = timePicker.getMinute();
-
-                String hour_str = Integer.toString(hour);
-                String min_str = Integer.toString(min);
-
-                if(hour > 12)
-                    hour_str = String.valueOf(hour - 12);
-
-                if(min < 10)
-                    min_str = "0" + Integer.toString(min);
-
-                Toast.makeText(MainActivity.this, "Alarm set to: " + hour_str +":" + min_str, Toast.LENGTH_SHORT).show();
-
-                my_intent.putExtra("extra", "alarm on");
-
-
-                pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "Alarm cancelled :(", Toast.LENGTH_SHORT).show();
-
-                alarm_manager.cancel(pendingIntent);
-
-                //How to stop the alarm: for YASH
-                //my_intent.putExtra("extra, "alarm off");
-                // Put this line where the user turns off the alarm
-                //sendBroadcast(my_intent);
-                //Put that line where the alarm should turn off
-            }
-        });
-        int delay = 0; // delay for 0 sec.
-        int period = 10000; // repeat every 10 sec.
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask()
-        {
-            public void run()
-            {
-                check();
-            }
-        }, delay, period);
-
-    }
-
-    void check(){
-        if(mmm==1) {
-
-            startActivityForResult(new Intent(this, VRActivity.class), 1);
-            mmm = 0;
-        }
     }
 
     //public static void caller(Context ct){
-      //  initializeGvrView(ct);
+    //  initializeGvrView(ct);
     //}
 
     public void initializeGvrView() {
@@ -419,23 +331,6 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer 
         Matrix.setIdentityM(modelFloor, 0);
         Matrix.translateM(modelFloor, 0, 0, -floorDepth, 0); // Floor appears below user.
 
-        // Avoid any delays during start-up due to decoding of sound files.
-        new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        // Start spatial audio playback of OBJECT_SOUND_FILE at the model position. The
-                        // returned sourceId handle is stored and allows for repositioning the sound object
-                        // whenever the cube position changes.
-                        gvrAudioEngine.preloadSoundFile(OBJECT_SOUND_FILE);
-                        sourceId = gvrAudioEngine.createSoundObject(OBJECT_SOUND_FILE);
-                        gvrAudioEngine.setSoundObjectPosition(
-                                sourceId, modelPosition[0], modelPosition[1], modelPosition[2]);
-                        gvrAudioEngine.playSound(sourceId, true /* looped playback */);
-                        gvrAudioEngine.preloadSoundFile(SUCCESS_SOUND_FILE);
-                    }
-                })
-                .start();
 
         updateModelPosition();
 
@@ -622,14 +517,20 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer 
         Log.i(TAG, "onCardboardTrigger");
 
         if (isLookingAtObject()) {
-            successSourceId = gvrAudioEngine.createStereoSound(SUCCESS_SOUND_FILE);
-            gvrAudioEngine.playSound(successSourceId, false /* looping disabled */);
+            //successSourceId = gvrAudioEngine.createStereoSound(SUCCESS_SOUND_FILE);
+            //gvrAudioEngine.playSound(successSourceId, false /* looping disabled */);
             hideObject();
             score++;
+            if(score==2){
+                Intent returnIntent = getIntent();
+                returnIntent.putExtra("result", "1");
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }
         }
 
         // Always give user feedback.
-        vibrator.vibrate(50);
+        //vibrator.vibrate(50);
     }
 
     /**
@@ -679,26 +580,5 @@ public class MainActivity extends GvrActivity implements GvrView.StereoRenderer 
         return Math.abs(pitch) < PITCH_LIMIT && Math.abs(yaw) < YAW_LIMIT;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("in", "1");
-        if (requestCode == 1) {
-            Log.d("in", "2");
-            if(resultCode == Activity.RESULT_OK){
-                Log.d("in", "3");
-                String result=data.getExtras().getString("result");
-
-                Log.d("result", "res "+result);
-                if(result=="1"){
-                    Log.d("in", "4");
-                    my_intent.putExtra("extra", "alarm off");
-                    sendBroadcast(my_intent);
-                }
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
-            }
-        }
-    }//onActivityResult
 
 }

@@ -17,9 +17,15 @@
         </activity>
 
         <receiver android:name=".AlarmReceiver" />
-        <service android:name=".RingtonePlayingService"
-            android:enabled="true"></service>
 
+        <service
+            android:name=".RingtonePlayingService"
+            android:enabled="true" />
+
+        <activity
+            android:name=".VRActivity"
+            android:label="@string/title_activity_vr"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

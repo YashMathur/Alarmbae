@@ -1,5 +1,6 @@
 package alarmbae.terrible.hacks.alarmbae;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -17,6 +18,7 @@ import java.util.Random;
 public class RingtonePlayingService extends Service {
 
     MediaPlayer mp;
+    PendingIntent pI;
     Boolean isRunning = false;
     int startId;
 
@@ -27,9 +29,9 @@ public class RingtonePlayingService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(Intent intent, int flags, int startId){
         Log.i("LocalService", "Received start id " + startId + ": " + intent);
-
+        Intent in = new Intent(this, MainActivity.class);
         String state = intent.getExtras().getString("extra");
         assert state != null;
         switch (state) {
@@ -56,6 +58,7 @@ public class RingtonePlayingService extends Service {
             mp = MediaPlayer.create(this, songID);
             mp.setLooping(true);
             mp.start();
+            MainActivity.mmm = 1;
 
             this.isRunning = true;
             this.startId = 0;
@@ -63,7 +66,7 @@ public class RingtonePlayingService extends Service {
         } else if (this.isRunning && startId == 0){
             mp.stop();
             mp.reset();
-
+            Log.d("Stopping alarm", "1");
             this.isRunning = false;
             this.startId = 0;
         }
